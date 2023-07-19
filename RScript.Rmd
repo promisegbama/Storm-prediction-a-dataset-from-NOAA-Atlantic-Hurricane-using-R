@@ -1,0 +1,128 @@
+---
+title: ''
+output: html_document
+---
+
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(magrittr)
+library(kableExtra)
+library(RColorBrewer)
+library(readxl)
+library(kableExtra)  
+library(ggplot2)
+library(FSA)
+library(ggthemes)
+library(corrgram)
+library(psych)
+library(pander)
+
+storms_data = read_excel("G:/ALY6000 Rproject/Datasets/storms.xlsx")
+
+
+
+
+#finding the nulls in the dataset
+colSums(is.na(storms_data))
+
+newdf = select(storms_data, -tropicalstorm_force_diameter, -hurricane_force_diameter, -category)
+
+duplicated(newdf)
+
+glimpse(newdf)
+
+summary(newdf)
+
+attach(newdf)
+
+#to rename the variables  
+newdf = rename(newdf, latitude=lat, longitude = long, storm_name=name)
+
+print(newdf)
+#correlation plot of numeric variables 
+newdf_int = dplyr::select_if(newdf, is.numeric)
+
+corrgram(newdf_int, upper.panel = NULL, lower.panel=panel.cor)
+
+
+```
+
+
+
+```{r}
+
+#Descriptive data
+newdf %>%
+  dplyr::select(latitude, longitude, pressure, wind) %>% #select numerical variables only
+  describe() %>% #to get multiple descriptive values
+  pander()
+```
+
+
+
+```{r}
+hist(newdf$latitude, col = brewer.pal(7,"Set2"), border = "black",
+     xlab = "Latitude", ylab = "Frequency",
+     main = "Histogram of Latitude",
+     breaks = 25)
+```
+
+
+
+```{r}
+# Create the boxplot of longitude
+boxplot(newdf$longitude,
+        col = c("coral", "#33A02C"),
+        border = "black",
+        main = "Boxplot of longitude",
+        xlab = "longitude",
+        ylab = "Values",
+        notch = FALSE,
+        whisklty = 2,
+        whisklwd = 1,
+        staplelwd = 1,
+        outpch = 16,
+        cex.axis = 1.2,
+        cex.lab = 1.2,
+        cex.main = 1.4)
+
+```
+
+
+
+```{r}
+plot(pressure,year,
+     col = "cadetblue",
+     pch = 16,
+     xlab = "Pressure",
+     ylab = "Year",
+     main = "Scatter Plot for year wise pressure"
+     )
+
+```
+
+```{r}
+
+data_wind = subset(newdf$wind ,wind>=25)
+
+wind_subset = describe(data_wind)
+wind_subset
+
+hist(data_wind,breaks = 25, col= brewer.pal(7,"Set3"),ylim = c(0,5000))
+
+
+
+data_pressure = subset(newdf$pressure ,wind>=25)
+
+pressure_subset = describe(data_wind)
+pressure_subset
+
+hist(data_pressure,breaks = 25, col= "darkolivegreen2",ylim = c(0,5000), xlim = c(900, 1020))
+
+
+
+```
+
